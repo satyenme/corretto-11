@@ -154,8 +154,14 @@ task createTestImage(type: Exec) {
     commandLine 'make','test-image-hotspot-jtreg-native','test-image-jdk-jtreg-native','test-image-hotspot-gtest'
 }
 
-task packageTestImage(type: Tar) {
+task buildAndRunGtest(type: Exec) {
     dependsOn createTestImage
+    workingDir "$buildRoot"
+    commandLine 'make', 'run-test', 'TEST="gtest:all"'
+}
+
+task packageTestImage(type: Tar) {
+    dependsOn buildAndRunGtest
     description 'Package test results'
     archiveName "${project.correttoTestImageArchiveName}.tar.gz"
     compression Compression.GZIP
