@@ -57,14 +57,14 @@ task executeBuild(type: Exec) {
     commandLine 'make', 'images', 'test-image-hotspot-jtreg-native', 'test-image-jdk-jtreg-native'
 }
 
-task buildAndRunGtest(type: Exec) {
+task runGtest(type: Exec) {
     dependsOn executeBuild
     workingDir "$buildRoot"
     commandLine 'make', 'run-test', 'TEST="gtest:all"'
 }
 
 task copyImage(type: Copy) {
-    dependsOn buildAndRunGtest
+    dependsOn executeBuild
 
     from "${executeBuild.workingDir}/build/${project.jdkImageName}/images"
     into "$buildRoot/build"
@@ -94,6 +94,7 @@ task packageDebugSymbols(type: Zip) {
 
 task packageJdk(type: Zip) {
     dependsOn packageDebugSymbols
+    dependsOn runGtest
     archiveName  = "unsigned-jdk-image.zip"
 
     from("${copyImage.destinationDir}/jdk") {

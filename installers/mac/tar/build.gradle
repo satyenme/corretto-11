@@ -88,14 +88,15 @@ task executeTestBuild(type: Exec) {
     commandLine 'make','test-image-hotspot-jtreg-native','test-image-jdk-jtreg-native','test-image-hotspot-gtest'
 }
 
-task buildAndRunGtest(type: Exec) {
-    dependsOn executeTestBuild
+task runGtest(type: Exec) {
+    dependsOn executeBuild
     workingDir "$buildRoot"
     commandLine 'make', 'run-test', 'TEST="gtest:all"'
 }
 
 task prepareArtifacts {
     dependsOn executeBuild
+    dependsOn runGtest
     doLast {
         if(file("${jdkResultingImage}/${correttoMacDir}").exists()) {
             delete "${jdkResultingImage}/${correttoMacDir}"
@@ -200,7 +201,7 @@ task packageDebugSymbols(type: Tar) {
 }
 
 task packageTestResults(type: Tar) {
-    dependsOn buildAndRunGtest
+    dependsOn executeTestBuild
     description 'Package test results'
     archiveName "${project.correttoTestImageArchiveName}.tar.gz"
     compression Compression.GZIP
