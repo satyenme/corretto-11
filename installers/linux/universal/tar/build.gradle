@@ -46,7 +46,10 @@ if (project.correttoArch == 'armv7') {
                 '--openjdk-target=arm-unknown-linux-musleabihf',
                 '--with-stdc++lib=static',
                 '--with-extra-cflags=-Os -fomit-frame-pointer -g',
-                '--with-extra-cxxflags=-Os -fomit-frame-pointer -g',
+                // libjvm.so (C++) must keep the ARM frame pointer: os::current_frame()
+                // reads r11 via inline asm to walk C frames, so omitting it breaks
+                // native stack walking and fails the os.is_first_C_frame gtest.
+                '--with-extra-cxxflags=-Os -fno-omit-frame-pointer -g',
                 '--with-extra-ldflags=-Wl,--as-needed',
                 '--with-extra-asflags=-Os -fomit-frame-pointer -g',
                 '--with-extra-cflags=-DMUSL_LIBC'
